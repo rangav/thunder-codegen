@@ -1,4 +1,4 @@
-## Thunder Client Codegen Project
+## Thunder Client Code Snippet Project
 
 The project is used for Code Snippet Generation in ThunderClient.
 
