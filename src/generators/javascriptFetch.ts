@@ -1,0 +1,63 @@
+import { RequestCodeModel } from "../models/requestModel";
+import CodeGenerator from "./codeGenerator";
+import { CodeResultModel } from "../models/codeModels";
+
+export default class JavascriptFetch implements CodeGenerator {
+
+    displayName: string = "Javascript Fetch";
+    lang: string = "javascript";
+    id: string = "js-fetch";
+
+    public getCode(request: RequestCodeModel): CodeResultModel {
+
+        let codeResult = new CodeResultModel(this.lang);
+        let codeBuilder = [];
+        let headerString: string[] = [];
+
+        request.headers.forEach(element => {
+            headerString.push(` "${element.name}": "${element.value}"`)
+        });
+
+        codeBuilder.push(`let headersList = {`);
+        codeBuilder.push(`${headerString.join(",\n")}`);
+        codeBuilder.push(`}\n`);
+
+        let bodyContent = "";
+        let body = request.body;
+        if (body) {
+            if (body.type == "formdata" && body.form) {
+                codeBuilder.push(`let formdata = new FormData();`)
+                body.form.forEach(element => {
+                    codeBuilder.push(`formdata.append("${element.name}", "${element.value}");`);
+                });
+                codeBuilder.push(``);
+
+                bodyContent = `  body: formdata`;
+            } else if (body.type == "formencoded" && body.form) {
+                var formArray: string[] = [];
+                body.form.forEach(element => {
+                    formArray.push(`${element.name}=${element.value}`);
+                });
+
+                bodyContent = `  body: "${formArray.join("&")}"`;
+            } else if (body.raw) {
+                bodyContent = body.type == "json" ? `  body: ${JSON.stringify(body.raw)}` : `  body: \`${body.raw}\``;
+            }
+        }
+
+        codeBuilder.push(`fetch("${request.url}", { `);
+        codeBuilder.push(`  method: "${request.method}",`);
+        if (bodyContent) {
+            codeBuilder.push(`${bodyContent},`);
+        }
+        codeBuilder.push(`  headers: headersList`);
+        codeBuilder.push("}).then(function(response) {");
+        codeBuilder.push("  return response.text();")
+        codeBuilder.push("}).then(function(data) {");
+        codeBuilder.push("  console.log(data);")
+        codeBuilder.push("})");
+
+        codeResult.code = codeBuilder.join("\n");
+        return codeResult
+    }
+}
