@@ -22,8 +22,8 @@ export default class CurlRequest implements CodeGenerator {
 
         let body = request.body;
         if (body) {
-            if (body.type == "formdata" && body.form) {
-                body.form.forEach(element => {
+            if (body.type == "formdata" && (body.form || body.files)) {
+                body.form?.forEach(element => {
                     codeBuilder.push(`  --form '${element.name}="${element.value}"'`);
                 });
 

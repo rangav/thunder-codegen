@@ -26,9 +26,9 @@ export default class JavascriptFetch implements CodeGenerator {
         let bodyContent = "";
         let body = request.body;
         if (body) {
-            if (body.type == "formdata" && body.form) {
+            if (body.type == "formdata" && (body.form || body.files)) {
                 codeBuilder.push(`let formdata = new FormData();`)
-                body.form.forEach(element => {
+                body.form?.forEach(element => {
                     codeBuilder.push(`formdata.append("${element.name}", "${element.value}");`);
                 });
                 body.files?.forEach(element => {

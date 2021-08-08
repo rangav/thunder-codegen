@@ -27,9 +27,9 @@ export default class CsharpHttpClient implements CodeGenerator {
 
         let body = request.body;
         if (body) {
-            if (body.type == "formdata" && body.form) {
+            if (body.type == "formdata" && (body.form || body.files)) {
                 codeBuilder.push(`var content = new MultipartFormDataContent();`)
-                body.form.forEach(element => {
+                body.form?.forEach(element => {
                     codeBuilder.push(`content.Add(new StringContent("${element.value}"), "${element.name}");`);
                 });
 

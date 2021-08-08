@@ -29,23 +29,28 @@ export default class PythonRequests implements CodeGenerator {
         let filesBody = "";
         let body = request.body;
         if (body) {
-            if (body.type == "formdata" && body.form && body.form.length > 0) {
-                let boundary = "kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A";
-                var formArray: string[] = [];
-                body.form.forEach(element => {
-                    formArray.push(`--${boundary}\\r\\nContent-Disposition: form-data; name=\\"${element.name}\\"\\r\\n\\r\\n${element.value}\\r\\n`);
-                });
-                bodyContent = `payload = "${formArray.join("")}--${boundary}--\\r\\n"`;
-                // todo multi part form
-                headerString.push(` "Content-Type": "multipart/form-data; boundary=${boundary}"`)
-            } else if (body.type == "formdata" && body.files && body.files.length > 0) {
+            if (body.type == "formdata") {
 
-                codeBuilder.push(`post_files = {`)
-                body.files?.forEach(element => {
-                    codeBuilder.push(`  "${element.name}": open("${element.value}", "rb"),`);
-                });
-                codeBuilder.push(`}`)
-                filesBody = "files=post_files,"
+                if (body.form && body.form.length > 0) {
+                    let boundary = "kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A";
+                    var formArray: string[] = [];
+                    body.form.forEach(element => {
+                        formArray.push(`--${boundary}\\r\\nContent-Disposition: form-data; name=\\"${element.name}\\"\\r\\n\\r\\n${element.value}\\r\\n`);
+                    });
+                    bodyContent = `payload = "${formArray.join("")}--${boundary}--\\r\\n"`;
+                    // todo multi part form
+                    headerString.push(` "Content-Type": "multipart/form-data; boundary=${boundary}"`);
+                }
+
+                if (body.files && body.files.length > 0) {
+
+                    codeBuilder.push(`post_files = {`)
+                    body.files?.forEach(element => {
+                        codeBuilder.push(`  "${element.name}": open("${element.value}", "rb"),`);
+                    });
+                    codeBuilder.push(`}`)
+                    filesBody = "files=post_files,"
+                }
             }
             else if (body.type == "formencoded" && body.form && body.form.length > 0) {
                 var formArray: string[] = [];
