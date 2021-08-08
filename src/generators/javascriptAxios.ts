@@ -1,6 +1,7 @@
 import { RequestCodeModel } from "../models/requestModel";
 import CodeGenerator from "./codeGenerator";
 import { CodeResultModel } from "../models/codeModels";
+import { convertFileToBase64 } from "../helpers/helper";
 
 export default class JavascriptAxios implements CodeGenerator {
 
@@ -14,7 +15,11 @@ export default class JavascriptAxios implements CodeGenerator {
         let codeBuilder = [];
         let headerString: string[] = [];
 
-        codeBuilder.push(`import axios from "axios";\n`);
+        codeBuilder.push(`import axios from "axios";`);
+        if (request?.body?.files && request?.body?.files.length > 0) {
+            codeBuilder.push(`var fs = require('fs');`)
+        }
+        codeBuilder.push("");
 
         request.headers.forEach(element => {
             headerString.push(` "${element.name}": "${element.value}"`)
@@ -31,6 +36,11 @@ export default class JavascriptAxios implements CodeGenerator {
                 body.form.forEach(element => {
                     codeBuilder.push(`formdata.append("${element.name}", "${element.value}");`);
                 });
+
+                body.files?.forEach(element => {
+                    codeBuilder.push(`formdata.append("${element.name}", fs.createReadStream("${element.value}"));`);
+                });
+
                 codeBuilder.push(``);
                 bodyContent = `  data: formdata`;
             } else if (body.type == "formencoded" && body.form) {
@@ -42,6 +52,10 @@ export default class JavascriptAxios implements CodeGenerator {
                 bodyContent = `  data: "${formArray.join("&")}"`;
             } else if (body.raw) {
                 bodyContent = body.type == "json" ? `  data: ${JSON.stringify(body.raw)}` : `  data: \`${body.raw}\``;
+            }
+            else if (body.binary) {
+                var imageAsBase64 = convertFileToBase64(body.binary);
+                bodyContent = `  data: '${imageAsBase64}'`;
             }
         }
 

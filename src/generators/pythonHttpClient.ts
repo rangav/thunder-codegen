@@ -2,6 +2,8 @@ import { RequestCodeModel } from "../models/requestModel";
 import CodeGenerator from "./codeGenerator";
 import { CodeResultModel } from "../models/codeModels";
 import { URL } from "url";
+import { convertFileToBase64 } from "../helpers/helper";
+var fs = require('fs');
 
 export default class PythonHttpClient implements CodeGenerator {
 
@@ -32,7 +34,7 @@ export default class PythonHttpClient implements CodeGenerator {
         let bodyContent = `payload = ""`;
         let body = request.body;
         if (body) {
-            if (body.type == "formdata" && body.form) {
+            if (body.type == "formdata" && body.form && body.form.length > 0) {
                 let boundary = "kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A";
                 var formArray: string[] = [];
                 body.form.forEach(element => {
@@ -42,7 +44,7 @@ export default class PythonHttpClient implements CodeGenerator {
                 bodyContent = `payload = "${formArray.join("")}--${boundary}--\\r\\n"`;
                 // todo multi part form
                 headerString.push(` "Content-Type": "multipart/form-data; boundary=${boundary}"`)
-            } else if (body.type == "formencoded" && body.form) {
+            } else if (body.type == "formencoded" && body.form && body.form.length > 0) {
                 var formArray: string[] = [];
                 body.form.forEach(element => {
                     formArray.push(`${element.name}=${element.value}`);
@@ -52,6 +54,9 @@ export default class PythonHttpClient implements CodeGenerator {
             } else if (body.raw) {
                 // console.log("python body:", body.raw);
                 bodyContent = body.type == "json" ? `payload = ${JSON.stringify(body.raw)}` : `payload = "${body.raw.replace(/  +/g, ' ').replace(/\n/g, "\\n")}"`;
+            } else if (body.binary) {
+                var imageAsBase64 = convertFileToBase64(body.binary);
+                bodyContent = `payload = "${imageAsBase64}"`;
             }
         }
 

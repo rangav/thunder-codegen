@@ -27,6 +27,10 @@ export default class CurlRequest implements CodeGenerator {
                     codeBuilder.push(`  --form '${element.name}="${element.value}"'`);
                 });
 
+                body.files?.forEach(element => {
+                    codeBuilder.push(`  --form '${element.name}=@${element.value}'`);
+                });
+
             } else if (body.type == "formencoded" && body.form) {
                 var formArray: string[] = [];
                 body.form.forEach(element => {
@@ -36,6 +40,8 @@ export default class CurlRequest implements CodeGenerator {
                 codeBuilder.push(`  -d '${formArray.join("&")}'`);
             } else if (body.raw) {
                 codeBuilder.push(`  -d '${body.raw}'`);
+            } else if (body.binary) {
+                codeBuilder.push(`  --data-binary '@${body.binary}'`);
             }
         }
 

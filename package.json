@@ -1,7 +1,7 @@
 {
   "name": "@thunderclient/thunder-codegen",
-  "version": "1.1.0",
-  "description": "Thunder Codegen Project",
+  "version": "1.1.1",
+  "description": "Thunder Client Codegen Project",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

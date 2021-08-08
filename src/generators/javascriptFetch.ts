@@ -1,6 +1,7 @@
 import { RequestCodeModel } from "../models/requestModel";
 import CodeGenerator from "./codeGenerator";
 import { CodeResultModel } from "../models/codeModels";
+import { convertFileToBase64 } from "../helpers/helper";
 
 export default class JavascriptFetch implements CodeGenerator {
 
@@ -30,18 +31,27 @@ export default class JavascriptFetch implements CodeGenerator {
                 body.form.forEach(element => {
                     codeBuilder.push(`formdata.append("${element.name}", "${element.value}");`);
                 });
+                body.files?.forEach(element => {
+                    codeBuilder.push(`formdata.append("${element.name}", "${element.value}");`);
+                });
                 codeBuilder.push(``);
 
                 bodyContent = `  body: formdata`;
-            } else if (body.type == "formencoded" && body.form) {
+            }
+            else if (body.type == "formencoded" && body.form) {
                 var formArray: string[] = [];
                 body.form.forEach(element => {
                     formArray.push(`${element.name}=${element.value}`);
                 });
 
                 bodyContent = `  body: "${formArray.join("&")}"`;
-            } else if (body.raw) {
+            }
+            else if (body.raw) {
                 bodyContent = body.type == "json" ? `  body: ${JSON.stringify(body.raw)}` : `  body: \`${body.raw}\``;
+            }
+            else if (body.binary) {
+                var imageAsBase64 = convertFileToBase64(body.binary);
+                bodyContent = `  body: '${imageAsBase64}'`;
             }
         }
 
