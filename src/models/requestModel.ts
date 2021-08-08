@@ -15,17 +15,18 @@ export type GraphqlBody = {
     variables?: string | undefined
 }
 
-export type BodyType = "none" | "text" | "json" | "xml" | "formdata" | "formencoded" | "graphql";
+export type BodyType = "none" | "text" | "json" | "xml" | "formdata" | "formencoded" | "graphql" | "binary";
 
 export type RequestBody = {
     type: BodyType,
     raw: string | undefined,
     form: KeyValue[] | undefined,
     files: KeyValue[] | undefined,
-    graphql: GraphqlBody | undefined
+    graphql: GraphqlBody | undefined,
+    binary: string | undefined
 }
 
-export type AuthType = "none" | "basic" | "bearer" | "oauth2";
+export type AuthType = "none" | "inherit" | "basic" | "bearer" | "oauth2";
 
 export type Authentication = {
     type: AuthType,
@@ -38,7 +39,6 @@ export class RequestCodeModel {
     public method: string = "";
     public url: string = "";
     public headers: KeyValue[] = [];
-    public params: KeyValue[] | undefined;
     public body: RequestBody | undefined;
     public auth: Authentication | undefined;
 }

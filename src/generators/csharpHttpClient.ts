@@ -33,6 +33,10 @@ export default class CsharpHttpClient implements CodeGenerator {
                     codeBuilder.push(`content.Add(new StringContent("${element.value}"), "${element.name}");`);
                 });
 
+                body.files?.forEach(element => {
+                    codeBuilder.push(`content.Add(new ByteArrayContent(File.ReadAllBytes("${element.value}")), "file", "${element.name}");`);
+                });
+
                 codeBuilder.push(`request.Content = content;\n`);
 
             } else if (body.type == "formencoded" && body.form) {
@@ -52,6 +56,12 @@ export default class CsharpHttpClient implements CodeGenerator {
                 }
 
                 codeBuilder.push(`var content = new StringContent(${JSON.stringify(request.body?.raw)}, Encoding.UTF8, "${contentType}");`);
+                codeBuilder.push(`request.Content = content;\n`);
+            } else if (body.binary) {
+                let contentType = request.headers.find(s => s.name == "Content-Type")?.value;
+
+                codeBuilder.push(`var base64 = Convert.ToBase64String(File.ReadAllBytes("${body.binary}"));`)
+                codeBuilder.push(`var content = new StringContent(base64, Encoding.UTF8, "${contentType}");`);
                 codeBuilder.push(`request.Content = content;\n`);
             }
         }
