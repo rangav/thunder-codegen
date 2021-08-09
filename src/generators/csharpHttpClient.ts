@@ -1,6 +1,7 @@
 import { RequestCodeModel } from "../models/requestModel";
 import CodeGenerator from "./codeGenerator";
 import { CodeResultModel } from "../models/codeModels";
+import { firstLetterUpper } from "../helpers/helper";
 
 export default class CsharpHttpClient implements CodeGenerator {
 
@@ -16,7 +17,7 @@ export default class CsharpHttpClient implements CodeGenerator {
         codeBuilder.push(`var client = new HttpClient();`);
         codeBuilder.push(`var request = new HttpRequestMessage();`);
         codeBuilder.push(`request.RequestUri = new Uri("${request.url}");`);
-        codeBuilder.push(`request.Method = HttpMethod.${this.firstLetterUpper(request.method)};`);
+        codeBuilder.push(`request.Method = HttpMethod.${firstLetterUpper(request.method)};`);
         codeBuilder.push(``);
 
         request.headers.forEach(element => {
@@ -71,10 +72,5 @@ export default class CsharpHttpClient implements CodeGenerator {
         codeBuilder.push(`Console.WriteLine(result);`)
         codeResult.code = codeBuilder.join("\n");
         return codeResult
-    }
-
-    private firstLetterUpper(input: string) {
-        input = input?.toLowerCase();
-        return input.charAt(0).toUpperCase() + input.slice(1);
     }
 }

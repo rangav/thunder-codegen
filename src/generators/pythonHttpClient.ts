@@ -3,7 +3,6 @@ import CodeGenerator from "./codeGenerator";
 import { CodeResultModel } from "../models/codeModels";
 import { URL } from "url";
 import { convertFileToBase64 } from "../helpers/helper";
-var fs = require('fs');
 
 export default class PythonHttpClient implements CodeGenerator {
 
