@@ -2,6 +2,7 @@ import { RequestCodeModel } from "../models/requestModel";
 import CodeGenerator from "./codeGenerator";
 import { CodeResultModel } from "../models/codeModels";
 import { convertFileToBase64, firstLetterUpper } from "../helpers/helper";
+import * as path from "path";
 
 export default class PowerShell implements CodeGenerator {
 
@@ -15,38 +16,43 @@ export default class PowerShell implements CodeGenerator {
 
         let codeResult = new CodeResultModel(this.lang);
         let codeBuilder = [];
-        let headerString: string[] = [];
+        let contentType = "";
 
+        codeBuilder.push(`$headers = @{}`)
         request.headers.forEach(element => {
-            headerString.push(` '${element.name}' = '${element.value}'`)
+            codeBuilder.push(`$headers.Add("${element.name}", "${element.value}")`)
         });
 
-        let bodyContent = `$body = ''`;
-        let filesBody = "";
+        let bodyContent = "";
         let body = request.body;
+        let contentTypeHeader: string | undefined = request.headers.find(s => s.name == "Content-Type")?.value;
+        if (contentTypeHeader)
+            contentType = `-ContentType '${contentTypeHeader}'`;
+
         if (body) {
             if (body.type == "formdata") {
+                let boundary = "kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A";
+                var formArray: string[] = [];
 
                 if (body.form && body.form.length > 0) {
-                    let boundary = "kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A";
-                    var formArray: string[] = [];
                     body.form.forEach(element => {
-                        formArray.push(`--${boundary}\\r\\nContent-Disposition: form-data; name=\\"${element.name}\\"\\r\\n\\r\\n${element.value}\\r\\n`);
+                        formArray.push(`--${boundary}\nContent-Disposition: form-data; name="${element.name}"\n\n${element.value}\n`);
                     });
-                    bodyContent = `payload = "${formArray.join("")}--${boundary}--\\r\\n"`;
-                    // todo multi part form
-                    headerString.push(` "Content-Type": "multipart/form-data; boundary=${boundary}"`);
+
                 }
 
                 if (body.files && body.files.length > 0) {
-
-                    codeBuilder.push(`post_files = {`)
-                    body.files?.forEach(element => {
-                        codeBuilder.push(`  "${element.name}": open("${element.value}", "rb"),`);
+                    body.files.forEach(element => {
+                        let name = path.basename(element.value);
+                        // var imageAsBase64 = convertFileToBase64(body.binary);
+                        formArray.push(`--${boundary}\nContent-Disposition: form-data; name="${element.name}"; filename="${name}"\nContent-Type: multipart/form-data\n\n\n`);
                     });
-                    codeBuilder.push(`}`)
-                    filesBody = "files=post_files,"
                 }
+
+                bodyContent = `$body = '${formArray.join("")}--${boundary}--\n'`;
+                // todo multi part form
+                codeBuilder.push(`$contentType = 'multipart/form-data; boundary=${boundary}'`)
+                contentType = `-ContentType $contentType`;
             }
             else if (body.type == "formencoded" && body.form && body.form.length > 0) {
                 var formArray: string[] = [];
@@ -54,24 +60,26 @@ export default class PowerShell implements CodeGenerator {
                     formArray.push(`${element.name}=${element.value}`);
                 });
 
-                bodyContent = `payload = "${formArray.join("&")}"`;
+                bodyContent = `$body = '${formArray.join("&")}'`;
+
             } else if (body.raw) {
                 // console.log("python body:", body.raw);
-                bodyContent = body.type == "json" ? `payload = ${JSON.stringify(body.raw)}` : `payload = "${body.raw.replace(/  +/g, ' ').replace(/\n/g, "\\n")}"`;
+                bodyContent = `$body = '${body.raw}'`;
             }
             else if (body.binary) {
                 var imageAsBase64 = convertFileToBase64(body.binary);
-                bodyContent = `payload = '${imageAsBase64}'`;
+                bodyContent = `$body = '${imageAsBase64}'`;
             }
         }
 
-        codeBuilder.push(`$headers = @{\n${headerString.join(",\n")} \n}`);
         codeBuilder.push("");
         codeBuilder.push(`$reqUrl = '${request.url}'`)
 
-        codeBuilder.push(`${bodyContent}\n`);
 
-        codeBuilder.push(`$response = Invoke-RestMethod -Uri $reqUrl -Method ${firstLetterUpper(request.method)} -Headers $headers -Body $body`);
+        codeBuilder.push(`${bodyContent}\n`);
+        let bodyAppendText = bodyContent ? "-Body $body" : "";
+
+        codeBuilder.push(`$response = Invoke-RestMethod -Uri $reqUrl -Method ${firstLetterUpper(request.method)} -Headers $headers ${contentType} ${bodyAppendText}`);
         codeBuilder.push(`$response | ConvertTo-Json`);
         codeResult.code = codeBuilder.join("\n");
         return codeResult
