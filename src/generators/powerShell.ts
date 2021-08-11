@@ -41,13 +41,13 @@ export default class PowerShell implements CodeGenerator {
 
                 }
 
-                if (body.files && body.files.length > 0) {
-                    body.files.forEach(element => {
-                        let name = path.basename(element.value);
-                        // var imageAsBase64 = convertFileToBase64(body.binary);
-                        formArray.push(`--${boundary}\nContent-Disposition: form-data; name="${element.name}"; filename="${name}"\nContent-Type: multipart/form-data\n\n\n`);
-                    });
-                }
+                // if (body.files && body.files.length > 0) {
+                //     body.files.forEach(element => {
+                //         let name = path.basename(element.value);
+                //         // var imageAsBase64 = convertFileToBase64(body.binary);
+                //         formArray.push(`--${boundary}\nContent-Disposition: form-data; name="${element.name}"; filename="${name}"\nContent-Type: multipart/form-data\n\n\n`);
+                //     });
+                // }
 
                 bodyContent = `$body = '${formArray.join("")}--${boundary}--\n'`;
                 // todo multi part form
