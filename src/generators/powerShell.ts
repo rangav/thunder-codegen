@@ -77,7 +77,7 @@ export default class PowerShell implements CodeGenerator {
 
                 let bodyString = JSON.stringify(gqlBody);
 
-                bodyContent = `$body = '${bodyString.replace(/\$/g, '`$').replace(/"/g, '`"').replace(/\\n/g, " ")}'`;
+                bodyContent = `$body = "${bodyString.replace(/\$/g, '`$').replace(/"/g, '`"').replace(/\\n/g, " ")}"`;
             }
             else if (body.binary) {
                 var imageAsBase64 = convertFileToBase64(body.binary);
