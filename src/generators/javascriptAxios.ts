@@ -11,6 +11,8 @@ export default class JavascriptAxios implements CodeGenerator {
 
     getCode(request: RequestCodeModel): CodeResultModel {
 
+        // test online: https://codesandbox.io/s/6kj6r17qk?file=/src/index.js
+
         let codeResult = new CodeResultModel(this.lang);
         let codeBuilder = [];
         let headerString: string[] = [];
@@ -52,6 +54,15 @@ export default class JavascriptAxios implements CodeGenerator {
                 bodyContent = `  data: "${formArray.join("&")}"`;
             } else if (body.raw) {
                 bodyContent = body.type == "json" ? `  data: ${JSON.stringify(body.raw)}` : `  data: \`${body.raw}\``;
+            } else if (body.graphql) {
+                let varData = body.graphql.variables;
+                let variablesData = varData ? JSON.parse(varData.replace(/\n/g, " ")) : "{}"
+                codeBuilder.push("let gqlBody = {");
+                codeBuilder.push(`  query: \`${body.graphql.query}\`,`);
+                codeBuilder.push(`  variables: ${JSON.stringify(variablesData)}`);
+                codeBuilder.push("}\n");
+
+                bodyContent = `  data: JSON.stringify(gqlBody)`;
             }
             else if (body.binary) {
                 var imageAsBase64 = convertFileToBase64(body.binary);

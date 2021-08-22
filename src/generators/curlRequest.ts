@@ -38,9 +38,22 @@ export default class CurlRequest implements CodeGenerator {
                 });
 
                 codeBuilder.push(`  -d '${formArray.join("&")}'`);
-            } else if (body.raw) {
+            }
+            else if (body.raw) {
                 codeBuilder.push(`  -d '${body.raw}'`);
-            } else if (body.binary) {
+            }
+            else if (body.graphql) {
+                let varData = body.graphql.variables;
+                let variablesData = varData ? JSON.parse(varData.replace(/\n/g, " ")) : "{}"
+
+                let gqlBody = {
+                    query: body.graphql.query,
+                    variables: variablesData
+                }
+
+                codeBuilder.push(`  -d '${JSON.stringify(gqlBody)}'`);
+            }
+            else if (body.binary) {
                 codeBuilder.push(`  --data-binary '@${body.binary}'`);
             }
         }

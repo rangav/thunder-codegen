@@ -11,6 +11,8 @@ export default class JavascriptFetch implements CodeGenerator {
 
     public getCode(request: RequestCodeModel): CodeResultModel {
 
+        // test online: https://codesandbox.io/s/6kj6r17qk?file=/src/index.js
+
         let codeResult = new CodeResultModel(this.lang);
         let codeBuilder = [];
         let headerString: string[] = [];
@@ -48,6 +50,15 @@ export default class JavascriptFetch implements CodeGenerator {
             }
             else if (body.raw) {
                 bodyContent = body.type == "json" ? `  body: ${JSON.stringify(body.raw)}` : `  body: \`${body.raw}\``;
+            } else if (body.graphql) {
+                let varData = body.graphql.variables;
+                let variablesData = varData ? JSON.parse(varData.replace(/\n/g, " ")) : "{}"
+                codeBuilder.push("let gqlBody = {");
+                codeBuilder.push(`  query: \`${body.graphql.query}\`,`);
+                codeBuilder.push(`  variables: ${JSON.stringify(variablesData)}`);
+                codeBuilder.push("}\n");
+
+                bodyContent = `  body: JSON.stringify(gqlBody)`;
             }
             else if (body.binary) {
                 var imageAsBase64 = convertFileToBase64(body.binary);

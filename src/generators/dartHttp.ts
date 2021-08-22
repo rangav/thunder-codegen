@@ -58,7 +58,20 @@ export default class DartHttp implements CodeGenerator {
                     codeBuilder.push(`var body = '''${body.raw}''';`);
                     bodyContent += "req.body = body;"
                 }
+            }
+            else if (body.graphql) {
+                let varData = body.graphql.variables;
+                let variablesData = varData ? JSON.parse(varData.replace(/\n/g, " ")) : "{}"
 
+                let gqlBody = {
+                    query: body.graphql.query,
+                    variables: variablesData
+                }
+
+                let bodyString = JSON.stringify(gqlBody);
+
+                codeBuilder.push(`var body = '''${bodyString.replace(/\$/g, "\\$").replace(/\\n/g, " ")}''';`);
+                bodyContent += "req.body = body;"
             }
             else if (body.binary) {
                 codeBuilder.push(`var file = File('${body.binary}');`)

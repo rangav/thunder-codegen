@@ -11,6 +11,11 @@ export default class CsharpHttpClient implements CodeGenerator {
 
     getCode(request: RequestCodeModel): CodeResultModel {
 
+        // Test online https://dotnetfiddle.net/ - > choose .Net 5
+        // using System.Net.Http;
+        // using System.Threading.Tasks;
+        // using System.Text;
+
         let codeResult = new CodeResultModel(this.lang);
         let codeBuilder = [];
 
@@ -58,7 +63,23 @@ export default class CsharpHttpClient implements CodeGenerator {
 
                 codeBuilder.push(`var content = new StringContent(${JSON.stringify(request.body?.raw)}, Encoding.UTF8, "${contentType}");`);
                 codeBuilder.push(`request.Content = content;\n`);
-            } else if (body.binary) {
+            }
+            else if (body.graphql) {
+                let varData = body.graphql.variables;
+                let variablesData = varData ? JSON.parse(varData.replace(/\n/g, " ")) : "{}"
+
+                let gqlBody = {
+                    query: body.graphql.query,
+                    variables: variablesData
+                }
+
+                let bodyString = JSON.stringify(gqlBody);
+
+                codeBuilder.push(`var content = new StringContent("${bodyString.replace(/"/g, '\\"').replace(/\\n/g, " ")}", Encoding.UTF8, "application/json");`);
+                codeBuilder.push(`request.Content = content;\n`);
+
+            }
+            else if (body.binary) {
                 let contentType = request.headers.find(s => s.name == "Content-Type")?.value;
 
                 codeBuilder.push(`var base64 = Convert.ToBase64String(File.ReadAllBytes("${body.binary}"));`)

@@ -63,6 +63,19 @@ export default class PythonRequests implements CodeGenerator {
                 // console.log("python body:", body.raw);
                 bodyContent = body.type == "json" ? `payload = ${JSON.stringify(body.raw)}` : `payload = "${body.raw.replace(/  +/g, ' ').replace(/\n/g, "\\n")}"`;
             }
+            else if (body.graphql) {
+                let varData = body.graphql.variables;
+                let variablesData = varData ? JSON.parse(varData.replace(/\n/g, " ")) : "{}"
+
+                let gqlBody = {
+                    query: body.graphql.query,
+                    variables: variablesData
+                }
+
+                let bodyString = JSON.stringify(gqlBody);
+
+                bodyContent = `payload = "${bodyString.replace(/"/g, '\\"').replace(/\\n/g, " ")}"`;
+            }
             else if (body.binary) {
                 var imageAsBase64 = convertFileToBase64(body.binary);
                 bodyContent = `payload = '${imageAsBase64}'`;

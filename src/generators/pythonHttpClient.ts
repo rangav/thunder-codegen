@@ -12,6 +12,8 @@ export default class PythonHttpClient implements CodeGenerator {
 
     getCode(request: RequestCodeModel): CodeResultModel {
 
+        // Test Online https://www.programiz.com/python-programming/online-compiler/
+
         let codeResult = new CodeResultModel(this.lang);
         let codeBuilder = [];
         let headerString: string[] = [];
@@ -53,7 +55,21 @@ export default class PythonHttpClient implements CodeGenerator {
             } else if (body.raw) {
                 // console.log("python body:", body.raw);
                 bodyContent = body.type == "json" ? `payload = ${JSON.stringify(body.raw)}` : `payload = "${body.raw.replace(/  +/g, ' ').replace(/\n/g, "\\n")}"`;
-            } else if (body.binary) {
+            }
+            else if (body.graphql) {
+                let varData = body.graphql.variables;
+                let variablesData = varData ? JSON.parse(varData.replace(/\n/g, " ")) : "{}"
+
+                let gqlBody = {
+                    query: body.graphql.query,
+                    variables: variablesData
+                }
+
+                let bodyString = JSON.stringify(gqlBody);
+
+                bodyContent = `payload = "${bodyString.replace(/"/g, '\\"').replace(/\\n/g, " ")}"`;
+            }
+            else if (body.binary) {
                 var imageAsBase64 = convertFileToBase64(body.binary);
                 bodyContent = `payload = "${imageAsBase64}"`;
             }

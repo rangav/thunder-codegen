@@ -66,6 +66,19 @@ export default class PowerShell implements CodeGenerator {
                 // console.log("python body:", body.raw);
                 bodyContent = `$body = '${body.raw}'`;
             }
+            else if (body.graphql) {
+                let varData = body.graphql.variables;
+                let variablesData = varData ? JSON.parse(varData.replace(/\n/g, " ")) : "{}"
+
+                let gqlBody = {
+                    query: body.graphql.query,
+                    variables: variablesData
+                }
+
+                let bodyString = JSON.stringify(gqlBody);
+
+                bodyContent = `$body = '${bodyString.replace(/\$/g, '`$').replace(/"/g, '`"').replace(/\\n/g, " ")}'`;
+            }
             else if (body.binary) {
                 var imageAsBase64 = convertFileToBase64(body.binary);
                 bodyContent = `$body = '${imageAsBase64}'`;
