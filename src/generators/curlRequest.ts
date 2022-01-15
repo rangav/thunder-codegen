@@ -17,7 +17,7 @@ export default class CurlRequest implements CodeGenerator {
         codeBuilder.push(`  '${request.url}'`)
 
         request.headers.forEach(element => {
-            codeBuilder.push(`  -H '${element.name}: ${element.value}'`)
+            codeBuilder.push(`  --header '${element.name}: ${element.value}'`)
         });
 
         let body = request.body;
@@ -32,12 +32,9 @@ export default class CurlRequest implements CodeGenerator {
                 });
 
             } else if (body.type == "formencoded" && body.form) {
-                var formArray: string[] = [];
                 body.form.forEach(element => {
-                    formArray.push(`${element.name}=${element.value}`);
+                    codeBuilder.push(`  --data-urlencode '${element.name}=${element.value}'`);
                 });
-
-                codeBuilder.push(`  -d '${formArray.join("&")}'`);
             }
             else if (body.raw) {
                 codeBuilder.push(`  -d '${body.raw}'`);
