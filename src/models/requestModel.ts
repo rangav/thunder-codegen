@@ -26,13 +26,14 @@ export type RequestBody = {
     binary: string | undefined
 }
 
-export type AuthType = "none" | "inherit" | "basic" | "bearer" | "oauth2";
+export type AuthType = "none" | "inherit" | "basic" | "bearer" | "oauth2" | "ntlm";
 
 export type Authentication = {
     type: AuthType,
     basic: BasicAuth | undefined,
     bearer: string | undefined,
-    oauth2: any
+    oauth2: any,
+    ntlm?: any
 }
 
 export class RequestCodeModel {
