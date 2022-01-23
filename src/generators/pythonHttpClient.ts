@@ -54,7 +54,7 @@ export default class PythonHttpClient implements CodeGenerator {
                 bodyContent = `payload = "${formArray.join("&")}"`;
             } else if (body.raw) {
                 // console.log("python body:", body.raw);
-                bodyContent = body.type == "json" ? `payload = ${JSON.stringify(body.raw)}` : `payload = "${body.raw.replace(/  +/g, ' ').replace(/\n/g, "\\n")}"`;
+                bodyContent = body.type == "json" ? `payload = json.dumps(${body.raw})` : `payload = "${body.raw.replace(/  +/g, ' ').replace(/\n/g, "\\n")}"`;
             }
             else if (body.graphql) {
                 let varData = body.graphql.variables;

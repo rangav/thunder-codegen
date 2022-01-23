@@ -61,7 +61,10 @@ export default class CsharpHttpClient implements CodeGenerator {
                     contentType = "text/plain";
                 }
 
-                codeBuilder.push(`var content = new StringContent(${JSON.stringify(request.body?.raw)}, Encoding.UTF8, "${contentType}");`);
+                let bodyString = JSON.stringify(body.raw);
+
+                codeBuilder.push(`var bodyString = ${bodyString.replace(/\\n/g, "")};`);
+                codeBuilder.push(`var content = new StringContent(bodyString, Encoding.UTF8, "${contentType}");`);
                 codeBuilder.push(`request.Content = content;\n`);
             }
             else if (body.graphql) {

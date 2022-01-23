@@ -25,20 +25,19 @@ export default class JavascriptFetch implements CodeGenerator {
         codeBuilder.push(`${headerString.join(",\n")}`);
         codeBuilder.push(`}\n`);
 
-        let bodyContent = "";
+        let hasBody = false;
         let body = request.body;
         if (body) {
             if (body.type == "formdata" && (body.form || body.files)) {
-                codeBuilder.push(`let formdata = new FormData();`)
+                codeBuilder.push(`let bodyContent = new FormData();`)
                 body.form?.forEach(element => {
-                    codeBuilder.push(`formdata.append("${element.name}", "${element.value}");`);
+                    codeBuilder.push(`bodyContent.append("${element.name}", "${element.value}");`);
                 });
                 body.files?.forEach(element => {
-                    codeBuilder.push(`formdata.append("${element.name}", "${element.value}");`);
+                    codeBuilder.push(`bodyContent.append("${element.name}", "${element.value}");`);
                 });
                 codeBuilder.push(``);
-
-                bodyContent = `  body: formdata`;
+                hasBody = true;
             }
             else if (body.type == "formencoded" && body.form) {
                 var formArray: string[] = [];
@@ -46,10 +45,17 @@ export default class JavascriptFetch implements CodeGenerator {
                     formArray.push(`${element.name}=${element.value}`);
                 });
 
-                bodyContent = `  body: "${formArray.join("&")}"`;
+                codeBuilder.push(`let bodyContent = "${formArray.join("&")}";\n`);
+                hasBody = true;
             }
             else if (body.raw) {
-                bodyContent = body.type == "json" ? `  body: ${JSON.stringify(body.raw)}` : `  body: \`${body.raw}\``;
+                hasBody = true;
+                if (body.type == "json") {
+                    codeBuilder.push(`let bodyContent = JSON.stringify(${body.raw});\n`);
+
+                } else {
+                    codeBuilder.push(`let bodyContent = ${JSON.stringify(body.raw)};\n`);
+                }
             } else if (body.graphql) {
                 let varData = body.graphql.variables;
                 let variablesData = varData ? JSON.parse(varData.replace(/\n/g, " ")) : "{}"
@@ -58,18 +64,20 @@ export default class JavascriptFetch implements CodeGenerator {
                 codeBuilder.push(`  variables: ${JSON.stringify(variablesData)}`);
                 codeBuilder.push("}\n");
 
-                bodyContent = `  body: JSON.stringify(gqlBody)`;
+                codeBuilder.push(`let bodyContent =  JSON.stringify(gqlBody);\n`);
+                hasBody = true;
             }
             else if (body.binary) {
                 var imageAsBase64 = convertFileToBase64(body.binary);
-                bodyContent = `  body: '${imageAsBase64}'`;
+                codeBuilder.push(`let bodyContent =  '${imageAsBase64}';\n`);
+                hasBody = true;
             }
         }
 
         codeBuilder.push(`fetch("${request.url}", { `);
         codeBuilder.push(`  method: "${request.method}",`);
-        if (bodyContent) {
-            codeBuilder.push(`${bodyContent},`);
+        if (hasBody) {
+            codeBuilder.push(`  body: bodyContent,`);
         }
         codeBuilder.push(`  headers: headersList`);
         codeBuilder.push("}).then(function(response) {");
