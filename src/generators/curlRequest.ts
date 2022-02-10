@@ -37,7 +37,7 @@ export default class CurlRequest implements CodeGenerator {
                 });
             }
             else if (body.raw) {
-                codeBuilder.push(`  -d '${body.raw}'`);
+                codeBuilder.push(`  --data-raw '${body.raw}'`);
             }
             else if (body.graphql) {
                 let varData = body.graphql.variables;
@@ -48,7 +48,7 @@ export default class CurlRequest implements CodeGenerator {
                     variables: variablesData
                 }
 
-                codeBuilder.push(`  -d '${JSON.stringify(gqlBody)}'`);
+                codeBuilder.push(`  --data-raw '${JSON.stringify(gqlBody)}'`);
             }
             else if (body.binary) {
                 codeBuilder.push(`  --data-binary '@${body.binary}'`);
