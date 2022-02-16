@@ -8,7 +8,7 @@ export default class PythonHttpClient implements CodeGenerator {
 
     displayName: string = "Python http.client";
     lang: string = "python";
-    id: string = "pythn-httpclient";
+    id: string = "python-httpclient";
 
     getCode(request: RequestCodeModel): CodeResultModel {
 
