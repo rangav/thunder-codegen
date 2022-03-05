@@ -26,14 +26,15 @@ export type RequestBody = {
     binary: string | undefined
 }
 
-export type AuthType = "none" | "inherit" | "basic" | "bearer" | "oauth2" | "ntlm";
+export type AuthType = "none" | "inherit" | "basic" | "bearer" | "oauth2" | "ntlm" | "aws";
 
 export type Authentication = {
     type: AuthType,
     basic: BasicAuth | undefined,
     bearer: string | undefined,
     oauth2: any,
-    ntlm?: any
+    ntlm?: any,
+    aws?: any
 }
 
 export class RequestCodeModel {
