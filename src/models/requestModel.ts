@@ -7,7 +7,7 @@ export type KeyValue = {
 
 export type BasicAuth = {
     username: string,
-    password: string
+    password: string | undefined
 }
 
 export type GraphqlBody = {
