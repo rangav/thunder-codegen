@@ -30,9 +30,9 @@ export type AuthType = "none" | "inherit" | "basic" | "bearer" | "oauth2" | "ntl
 
 export type Authentication = {
     type: AuthType,
-    basic: BasicAuth | undefined,
-    bearer: string | undefined,
-    oauth2: any,
+    basic?: BasicAuth,
+    bearer?: string,
+    oauth2?: any,
     ntlm?: any,
     aws?: any
 }
