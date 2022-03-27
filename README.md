@@ -6,7 +6,9 @@ The project is used for Code Snippet Generation in ThunderClient.
 
 - C# - HttpClient
 - cURL
+- Dart Http
 - Javascipt Fetch & Axios
+- PowerShell
 - Python requests & http.client
 
 ### Contribute
