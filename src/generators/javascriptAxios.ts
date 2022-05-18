@@ -79,7 +79,7 @@ export default class JavascriptAxios implements CodeGenerator {
         codeBuilder.push(`  method: "${request.method}",`);
         codeBuilder.push(`  headers: headersList,`);
         if (bodyContent) {
-            codeBuilder.push(`  body: bodyContent,`);
+            codeBuilder.push(`  data: bodyContent,`);
         }
         codeBuilder.push(`}\n`)
 
