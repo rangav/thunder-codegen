@@ -17,17 +17,15 @@ export default class HttpRequest implements CodeGenerator {
 
         const url = new URL(request.url);
 
-        // codeBuilder.push("import 'package:http/http.dart' as http;\n");
 
-        codeBuilder.push(`${request.method} ${url.pathname} HTTP/1.1\r\n`); //The http version is better to be obtained from the file settings.json
-        codeBuilder.push(`Host: ${url.hostname}: ${url.port}\r\n`);
+
+        codeBuilder.push(`${request.method} ${url.pathname} HTTP/1.1`); //The http version is better to be obtained from the file settings.json
+        codeBuilder.push(`Host: ${url.hostname}: ${url.port}`);
 
         request.headers.forEach(element => {
-            codeBuilder.push(`'${element.name}: ${element.value}\r\n'`)
+            codeBuilder.push(`'${element.name}: ${element.value}'`)
         });
 
-        codeBuilder.push(`var headersList = {\n${headerString.join(",\n")} \n};`);
-        codeBuilder.push(`var url = Uri.parse('${request.url}');\n`)
 
         let bodyContent = "";
         let RequestType = "Request";
@@ -40,10 +38,10 @@ export default class HttpRequest implements CodeGenerator {
                 });
 
                 body.files?.forEach(element => {
-                    bodyContent += `req.files.add(await http.MultipartFile.fromPath('${element.name}', '${element.value}'));\n`;
+                    bodyContent += `req.files.add(await http.MultipartFile.fromPath('${element.name}', '${element.value}'));`;
                 });
 
-                codeBuilder.push(`{\n${formData.join(",\n")} \n}`);
+                codeBuilder.push(`{\n${formData.join(",\n")} }`);
                 bodyContent += "req.fields.addAll(body);"
                 RequestType = "MultipartRequest";
 
@@ -53,7 +51,7 @@ export default class HttpRequest implements CodeGenerator {
                     formData.push(` '${element.name}': '${element.value}'`)
                 });
 
-                codeBuilder.push(`{\n${formData.join(",\n")} \n}`);
+                codeBuilder.push(`{\n${formData.join(",\n")} }`);
                 bodyContent += "req.bodyFields = body;"
             } else if (body.raw) {
 
