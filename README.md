@@ -14,3 +14,8 @@ The project is used for Code Snippet Generation in ThunderClient.
 ### Contribute
 
 - if you need support for other languages please submit PR.
+
+### Testing
+
+- change the id value in src/testing.ts in `codeGenerator.getCode("js-axios", request)`
+- run ` npx ts-node src/testing.ts`

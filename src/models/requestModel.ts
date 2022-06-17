@@ -19,11 +19,11 @@ export type BodyType = "none" | "text" | "json" | "xml" | "formdata" | "formenco
 
 export type RequestBody = {
     type: BodyType,
-    raw: string | undefined,
-    form: KeyValue[] | undefined,
-    files: KeyValue[] | undefined,
-    graphql: GraphqlBody | undefined,
-    binary: string | undefined
+    raw?: string,
+    form?: KeyValue[],
+    files?: KeyValue[],
+    graphql?: GraphqlBody,
+    binary?: string
 }
 
 export type AuthType = "none" | "inherit" | "basic" | "bearer" | "oauth2" | "ntlm" | "aws";
@@ -41,6 +41,6 @@ export class RequestCodeModel {
     public method: string = "";
     public url: string = "";
     public headers: KeyValue[] = [];
-    public body: RequestBody | undefined;
-    public auth: Authentication | undefined;
+    public body?: RequestBody;
+    public auth?: Authentication;
 }
