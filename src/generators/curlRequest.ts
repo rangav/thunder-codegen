@@ -1,6 +1,7 @@
 import { RequestCodeModel } from "../models/requestModel";
 import CodeGenerator from "./codeGenerator";
 import { CodeResultModel } from "../models/codeModels";
+import { URL } from 'url';
 
 export default class CurlRequest implements CodeGenerator {
 
