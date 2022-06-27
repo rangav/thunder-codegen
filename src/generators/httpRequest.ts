@@ -4,7 +4,7 @@ import { CodeResultModel } from "../models/codeModels";
 
 export default class HttpRequest implements CodeGenerator {
 
-    displayName: string = "Http";
+    displayName: string = "Http Request";
     lang: string = "http";
     id: string = "http";
 
