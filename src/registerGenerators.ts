@@ -7,6 +7,7 @@ import PythonHttpClient from "./generators/pythonHttpClient";
 import PythonRequests from "./generators/pythonRequests";
 import PowerShell from "./generators/powershell";
 import DartHttp from "./generators/dartHttp";
+import LaraveHttpRequest from "./generators/LaraveHttpRequest";
 
 export default class RegisterGenerators {
 
@@ -21,7 +22,8 @@ export default class RegisterGenerators {
         generators.push(new PythonRequests());
         generators.push(new PowerShell());
         generators.push(new DartHttp());
-
+        generators.push(new LaraveHttpRequest());
+        
         return generators;
     }
 }
