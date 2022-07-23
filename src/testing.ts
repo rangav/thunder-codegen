@@ -25,5 +25,5 @@ let request: RequestCodeModel = {
     }
 }
 
-let result = codeGenerator.getCode("js-axios", request);
+let result = codeGenerator.getCode("laravel-http", request);
 console.log(result?.code);
